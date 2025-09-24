@@ -24,12 +24,12 @@ jobs:
             APP_PORT=5002
             REPO_DIR=/opt/$APP_NAME
 
-            mkdir -p ~/.ssh
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
-
+            # HTTPS ile clone (SSH key gerektirmez)
             if [ ! -d "$REPO_DIR" ]; then
-              git clone git@github.com:bleylek/DO-DENEME-APP2-W-DB.git $REPO_DIR
-            fi            cd $REPO_DIR
+              git clone https://github.com/bleylek/DO-DENEME-APP2-W-DB.git $REPO_DIR
+            fi
+            
+            cd $REPO_DIR
             git pull origin main
 
             docker stop $APP_NAME || true
