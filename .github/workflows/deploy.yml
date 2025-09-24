@@ -27,26 +27,9 @@ jobs:
             mkdir -p ~/.ssh
             ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-            # SSH key setup for deploy key
-            mkdir -p ~/.ssh
-            echo "${{ secrets.DO_SSH_KEY }}" > ~/.ssh/deploy_key
-            chmod 600 ~/.ssh/deploy_key
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
-            
-            # SSH config for deploy key
-            cat > ~/.ssh/config << 'EOF'
-            Host github.com
-                HostName github.com
-                User git
-                IdentityFile ~/.ssh/deploy_key
-                StrictHostKeyChecking no
-            EOF
-            
             if [ ! -d "$REPO_DIR" ]; then
               git clone git@github.com:bleylek/DO-DENEME-APP2-W-DB.git $REPO_DIR
-            fi
-
-            cd $REPO_DIR
+            fi            cd $REPO_DIR
             git pull origin main
 
             docker stop $APP_NAME || true
