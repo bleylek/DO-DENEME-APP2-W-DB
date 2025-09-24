@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Manager</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 50px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 70%;
+    }
+    button {
+      padding: 10px;
+      background: green;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .user {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+    .delete {
+      color: red;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>👤 Kullanıcı Listesi</h2>
+    <form method="POST">
+      <input type="text" name="name" placeholder="Yeni kullanıcı adı">
+      <button type="submit">Ekle</button>
+    </form>
+    <hr>
+    {% for user in users %}
+      <div class="user">
+        <span>{{ user.name }}</span>
+        <a href="/delete/{{ user.id }}" class="delete">Sil</a>
+      </div>
+    {% endfor %}
+  </div>
+</body>
+</html>

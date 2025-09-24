@@ -1,0 +1,44 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: SSH Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            APP_NAME=app2
+            APP_PORT=5002
+            REPO_DIR=/opt/$APP_NAME
+
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+            if [ ! -d "$REPO_DIR" ]; then
+              git clone git@github.com:bleylek/DO-DENEME-APP2-W-DB.git $REPO_DIR
+            fi
+
+            cd $REPO_DIR
+            git pull origin main
+
+            docker stop $APP_NAME || true
+            docker rm $APP_NAME || true
+            docker rmi $APP_NAME || true
+
+            docker build --no-cache -t $APP_NAME .
+            docker run -d --restart always -p $APP_PORT:$APP_PORT \
+              --name $APP_NAME \
+              -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+              $APP_NAME
