@@ -13,11 +13,12 @@ jobs:
         uses: actions/checkout@v3
 
       - name: SSH Deploy
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USERNAME }}
           key: ${{ secrets.DO_SSH_KEY }}
+          port: 22
           script: |
             APP_NAME=app2
             APP_PORT=5002
@@ -26,6 +27,21 @@ jobs:
             mkdir -p ~/.ssh
             ssh-keyscan github.com >> ~/.ssh/known_hosts
 
+            # SSH key setup for deploy key
+            mkdir -p ~/.ssh
+            echo "${{ secrets.DO_SSH_KEY }}" > ~/.ssh/deploy_key
+            chmod 600 ~/.ssh/deploy_key
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+            
+            # SSH config for deploy key
+            cat > ~/.ssh/config << 'EOF'
+            Host github.com
+                HostName github.com
+                User git
+                IdentityFile ~/.ssh/deploy_key
+                StrictHostKeyChecking no
+            EOF
+            
             if [ ! -d "$REPO_DIR" ]; then
               git clone git@github.com:bleylek/DO-DENEME-APP2-W-DB.git $REPO_DIR
             fi
