@@ -18,12 +18,14 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
       
-      - name: Deploy Application
-        env:
-          HOST: ${{ secrets.DO_HOST }}
-          USERNAME: ${{ secrets.DO_USERNAME }}
+      - name: Test SSH Connection
         run: |
-          ssh -o StrictHostKeyChecking=no ${USERNAME}@${HOST} "
+          echo "Testing SSH connection..."
+          ssh -o StrictHostKeyChecking=no root@207.154.226.65 "echo 'SSH connection works!'"
+      
+      - name: Deploy Application
+        run: |
+          ssh -o StrictHostKeyChecking=no root@207.154.226.65 "
             APP_NAME=app2 && 
             APP_PORT=5002 && 
             REPO_DIR=/opt/\$APP_NAME && 
