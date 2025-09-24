@@ -42,7 +42,7 @@ jobs:
             docker rmi \$APP_NAME || true && 
             
             docker build --no-cache -t \$APP_NAME . && 
-            docker run -d --restart always -p \$APP_PORT:\$APP_PORT \
+            docker run -d --restart always --network host \
               --name \$APP_NAME \
               -e DATABASE_URL='mysql+pymysql://root:supersecret@localhost:3306/app2db' \
               \$APP_NAME
