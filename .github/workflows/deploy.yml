@@ -13,12 +13,36 @@ jobs:
         uses: actions/checkout@v3
 
       - name: SSH Deploy
-        uses: appleboy/ssh-action@v1.0.3
+        uses: shimataro/ssh-key-action@v2
         with:
-          host: ${{ secrets.DO_HOST }}
-          username: ${{ secrets.DO_USERNAME }}
           key: ${{ secrets.DO_SSH_KEY }}
-          port: 22
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      
+      - name: Deploy Application
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }} << 'EOF'
+            APP_NAME=app2
+            APP_PORT=5002
+            REPO_DIR=/opt/$APP_NAME
+            
+            # HTTPS ile clone (SSH key gerektirmez)
+            if [ ! -d "$REPO_DIR" ]; then
+              git clone https://github.com/bleylek/DO-DENEME-APP2-W-DB.git $REPO_DIR
+            fi
+            
+            cd $REPO_DIR
+            git pull origin main
+            
+            docker stop $APP_NAME || true
+            docker rm $APP_NAME || true
+            docker rmi $APP_NAME || true
+            
+            docker build --no-cache -t $APP_NAME .
+            docker run -d --restart always -p $APP_PORT:$APP_PORT \
+              --name $APP_NAME \
+              -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+              $APP_NAME
+          EOF
           script: |
             APP_NAME=app2
             APP_PORT=5002
