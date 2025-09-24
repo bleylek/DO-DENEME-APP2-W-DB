@@ -19,8 +19,12 @@ jobs:
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
       
       - name: Deploy Application
+        env:
+          HOST: ${{ secrets.DO_HOST }}
+          USERNAME: ${{ secrets.DO_USERNAME }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${USERNAME}@${HOST} << 'EOF'
             APP_NAME=app2
             APP_PORT=5002
             REPO_DIR=/opt/$APP_NAME
@@ -40,6 +44,6 @@ jobs:
             docker build --no-cache -t $APP_NAME .
             docker run -d --restart always -p $APP_PORT:$APP_PORT \
               --name $APP_NAME \
-              -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+              -e DATABASE_URL="mysql+pymysql://root:supersecret@localhost:3306/app2db" \
               $APP_NAME
           EOF
